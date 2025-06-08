@@ -1,0 +1,30 @@
+# Core Django & REST Framework
+Django==4.2.19
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.4.0
+django-cors-headers==4.7.0
+django-filter==24.2
+
+# Authentication & Forms
+django-allauth==65.4.1
+dj-rest-auth==7.0.1
+django-crispy-forms==2.3
+crispy-bootstrap4==2024.10
+
+# Database & Storage
+psycopg2-binary==2.9.10
+Pillow==11.1.0
+django-cleanup==9.0.0
+
+# Production Dependencies
+gunicorn==21.2.0
+whitenoise==6.6.0
+dj-database-url==2.1.0
+python-dotenv==1.0.1
+
+# Security
+PyJWT==2.10.1
+
+
+pillow==11.1.0
+sqlparse==0.5.3
