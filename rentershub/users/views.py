@@ -13,11 +13,12 @@ class SignUpView(CreateView):
     template_name = 'registration/signup.html'
 
     def form_valid(self, form):
-        valid = super(SignUpView, self).form_valid(form)
-        email, password = form.cleaned_data.get('email'), form.cleaned_data.get('password1')
-        user = form.save()
+        response = super().form_valid(form)
+        # Get the user that was just created
+        user = self.object
+        # Log the user in
         login(self.request, user, backend='users.backend.EmailPhoneAuthenticationBackend')
-        return valid
+        return response
 
 #A view for displaying the home page
 class HomeView(TemplateView):

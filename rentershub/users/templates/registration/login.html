@@ -22,10 +22,9 @@
 							<h1 class="fs-4 card-title fw-bold mb-4">Login</h1>
 							<form method="POST">
                                 {% csrf_token %}
-								<div class="mb-3">
-                                    {{ form.username.errors }}
-									<label class="mb-2 text-muted" for="email">E-Mail Address or Phone Number</label>
-                                    <input type="text"  class="form-control" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" required>
+								<div class="mb-3">                                    {{ form.username.errors }}
+									<label class="mb-2 text-muted" for="username">E-Mail Address or Phone Number</label>
+                                    <input type="text" class="form-control" name="username" id="id_username" required>
 								</div>
 
 								<div class="mb-3">
