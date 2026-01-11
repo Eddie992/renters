@@ -23,17 +23,23 @@ environ.Env.read_env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if os.environ.get('DJANGO_SECRET_KEY'):
-    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-else:
-    # For development only
-    SECRET_KEY = 'django-insecure-development-key-do-not-use-in-production'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = ['*.koyeb.app', '*.eu-west-1.koyeb.app']
-CSRF_TRUSTED_ORIGINS = ['https://*.koyeb.app', 'https://*.eu-west-1.koyeb.app']
+ALLOWED_HOSTS = []
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 # CSRF_TRUSTED_ORIGINS = ['https://renters-hub.onrender.com']
 
 
@@ -69,6 +75,7 @@ MIDDLEWARE = [
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -77,6 +84,15 @@ DATABASES = {
             'timeout': 20,  # in seconds
         }
     }
+}
+'''
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 # Static files (CSS, JavaScript, Images)
@@ -123,6 +139,7 @@ WSGI_APPLICATION = 'rentershub.wsgi.application'
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
+'''
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -137,6 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+'''
 
 AUTH_USER_MODEL = "users.CustomUser"
 
