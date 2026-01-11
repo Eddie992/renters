@@ -192,7 +192,7 @@ if 'RENDER' in os.environ:
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
     AWS_S3_ENDPOINT_URL = f'https://{os.environ.get("SUPABASE_PROJECT_ID")}.supabase.co/storage/v1/s3'
-    AWS_S3_REGION_NAME = 'eu-west-1'  # Change to your actual region
+    AWS_S3_REGION_NAME = 'eu-west-1'  
 
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_S3_FILE_OVERWRITE = False
