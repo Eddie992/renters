@@ -13,6 +13,19 @@ class SaveImagesMixin:
             PropertyImages.objects.create(property=property, image=image)
 
 # A view for creating a new property post
+# class PropertyPostView(SaveImagesMixin, LoginRequiredMixin, CreateView):
+#     model = PropertyPost
+#     form_class = PropertyPostForm
+#     template_name = 'listings/templates/uploads.html'
+#     success_url = reverse_lazy('view_properties')
+
+#     def form_valid(self, form):
+#         form.instance.posted_by = self.request.user 
+#         property = form.save()
+#         for image in self.request.FILES:
+#             self.save_images(property, self.request.FILES.getlist('images')) # Save object images to the property images model 
+#         return super().form_valid(form)
+
 class PropertyPostView(SaveImagesMixin, LoginRequiredMixin, CreateView):
     model = PropertyPost
     form_class = PropertyPostForm
@@ -20,11 +33,20 @@ class PropertyPostView(SaveImagesMixin, LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('view_properties')
 
     def form_valid(self, form):
+        # 1. Assign the user who is posting
         form.instance.posted_by = self.request.user 
-        property = form.save()
-        for image in self.request.FILES:
-            self.save_images(property, self.request.FILES.getlist('images')) # Save object images to the property images model 
-        return super().form_valid(form)
+        
+        # 2. Use super().form_valid(form) to save the main object and handle redirects
+        # This prevents the 'double-save' that causes 500 errors
+        response = super().form_valid(form)
+        
+        # 3. Save the multiple images using the newly created self.object
+        # Only loop through the specific 'images' key
+        images = self.request.FILES.getlist('images')
+        if images:
+            self.save_images(self.object, images)
+            
+        return response
 
 # A view for viewing all property posts       
 class PropertyListView(ListView):
@@ -40,29 +62,51 @@ class PropertyDeleteView(DeleteView):
     success_url = reverse_lazy('view_properties')
 
 # A view for updating/editing a property post
+# class PropertyEditView(SaveImagesMixin, UpdateView):
+#     model = PropertyPost
+#     form_class = PropertyPostForm
+#     template_name = 'listings/templates/property_update_form.html'
+#     success_url = reverse_lazy('view_properties')
+
+    
+#     def get_context_data(self, **kwargs): # Include existing images in the context
+#         context = super().get_context_data(**kwargs)
+#         context['images'] = self.object.propertyimages_set.all()  
+#         return context
+    
+#     def form_valid(self, form):
+#         property = form.save()
+#         images_to_delete = self.request.POST.getlist('delete_images')
+#         if images_to_delete:
+#             for image_id in images_to_delete:
+#                 image = PropertyImages.objects.get(id=image_id)
+#                 image.delete()
+
+#         if 'images' in self.request.FILES: # Check if new images were uploaded by the user and save them
+#             self.save_images(property, self.request.FILES.getlist('images'))
+#         return super().form_valid(form)
+
 class PropertyEditView(SaveImagesMixin, UpdateView):
     model = PropertyPost
     form_class = PropertyPostForm
     template_name = 'listings/templates/property_update_form.html'
     success_url = reverse_lazy('view_properties')
 
-    
-    def get_context_data(self, **kwargs): # Include existing images in the context
-        context = super().get_context_data(**kwargs)
-        context['images'] = self.object.propertyimages_set.all()  
-        return context
-    
     def form_valid(self, form):
-        property = form.save()
+        # Save the main object updates first
+        response = super().form_valid(form)
+        
+        # Correctly handle image deletions
         images_to_delete = self.request.POST.getlist('delete_images')
         if images_to_delete:
-            for image_id in images_to_delete:
-                image = PropertyImages.objects.get(id=image_id)
-                image.delete()
+            PropertyImages.objects.filter(id__in=images_to_delete).delete()
 
-        if 'images' in self.request.FILES: # Check if new images were uploaded by the user and save them
-            self.save_images(property, self.request.FILES.getlist('images'))
-        return super().form_valid(form)
+        # Correctly handle new image uploads
+        new_images = self.request.FILES.getlist('images')
+        if new_images:
+            self.save_images(self.object, new_images)
+            
+        return response
     
 # A view for viewing property details
 class PropertyDetailView(DetailView):
