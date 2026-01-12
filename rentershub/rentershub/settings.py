@@ -201,6 +201,7 @@ if 'RENDER' in os.environ:
 
     SUPABASE_PROJECT_ID = os.environ.get("SUPABASE_PROJECT_ID")
     AWS_S3_CUSTOM_DOMAIN = f'{SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}'
+    MEDIA_URL = f'https://{SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}/'
 else:
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
